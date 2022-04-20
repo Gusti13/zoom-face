@@ -11,6 +11,7 @@
   "dependencies": {
     "@zoomus/websdk": "^2.3.5",
     "face-api.js": "^0.22.2",
+    "jsrsasign": "^10.5.17",
     "next": "12.1.5",
     "react": "18.0.0",
     "react-dom": "18.0.0"

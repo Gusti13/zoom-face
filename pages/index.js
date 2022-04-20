@@ -16,7 +16,7 @@ function App() {
     passWord: null
   })
 
-  var signatureEndpoint = 'http://localhost:4000'
+  var signatureEndpoint = '/api/signature'
   var sdkKey = "rqrOGbaDQpRKXO8s4DQMEhBQi0gOOXTO1cv1"
   var meetingNumber = input.meetingNumber
   var role = 0
