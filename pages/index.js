@@ -1,69 +1,211 @@
+import React from 'react';
+import ReactDom from 'react-dom/client';
 import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import { useState, useEffect } from 'react';
+import zoompng from '../assets/zoom.png'
+import Image from 'next/image';
 
-export default function Home() {
+
+function App() {
+
+  const [ZoomMtg, setZoomMtg] = useState(null)
+  const [input, setinput] = useState({
+    meetingNumber: null,
+    userName: null,
+    userEmail: null,
+    passWord: null
+  })
+
+  var signatureEndpoint = 'http://localhost:4000'
+  var sdkKey = "rqrOGbaDQpRKXO8s4DQMEhBQi0gOOXTO1cv1"
+  var meetingNumber = input.meetingNumber
+  var role = 0
+  var leaveUrl = "http://localhost:3000"
+  var userName = input.userName
+  var userEmail = input.userEmail
+  var passWord = input.passWord
+  var registrantToken = ''
+
+  function getSignature(e) {
+    e.preventDefault();
+
+    fetch(signatureEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        meetingNumber: meetingNumber,
+        role: role
+      })
+    }).then(res => res.json())
+    .then(response => {
+      startMeeting(response.signature)
+      console.log(response.signature)
+    }).catch(error => {
+      console.error(error)
+    })
+  }
+
+  function startMeeting(signature) {
+    document.getElementById('zmmtg-root').style.display = 'block'
+
+    ZoomMtg.setZoomJSLib('https://source.zoom.us/2.3.5/lib', '/av');
+    ZoomMtg.preLoadWasm();
+    ZoomMtg.prepareWebSDK();
+    ZoomMtg.i18n.load('en-US');
+    ZoomMtg.i18n.reload('en-US');
+
+    ZoomMtg.init({
+      leaveUrl: leaveUrl,
+      success: (success) => {
+        console.log(success)
+
+        ZoomMtg.join({
+          signature: signature,
+          meetingNumber: meetingNumber,
+          userName: userName,
+          sdkKey: sdkKey,
+          userEmail: userEmail,
+          passWord: passWord,
+          success: (success) => {
+            console.log(success)
+            console.log('root', document.querySelector('#main-video'))
+          },
+          error: (error) => {
+            console.log(error)
+          }
+        })
+
+      },
+      error: (error) => {
+        console.log(error)
+      }
+    })
+  }
+
+  function detect(video) {
+    let width;
+    let height;
+    let displaySize;
+    let videoStream;
+
+    if(video){
+      videoStream = document.querySelector("#videoStream")
+      const stream = video.captureStream();
+      videoStream.srcObject = stream;
+    }
+    
+    if(video){
+      width = video.offsetWidth
+      height = video.offsetHeight
+      displaySize = { width, height }
+
+      // const stream = video.captureStream(25);
+
+      const canvas = document.createElement("canvas")
+      video.after(canvas)
+      canvas.style.position = "absolute";
+      canvas.style.top = 0;
+      canvas.style.left = 0;
+      canvas.setAttribute("width", `${width}`)
+      canvas.setAttribute("height", `${height}`)
+      var ctxDetect = canvas.getContext('2d');
+    }
+    import('face-api.js').then(faceapi => {
+
+      async function main() {
+        if(video){
+          const detections = await faceapi.detectAllFaces(videoStream)
+                                          .withFaceExpressions()
+                                          .withAgeAndGender();
+          // console.log(detections)
+
+          ctxDetect.clearRect(0,0, width, height);
+          const resizedDetections = faceapi.resizeResults(detections, displaySize)
+          faceapi.draw.drawDetections(canvas, resizedDetections);
+          faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+          resizedDetections.forEach(result => {
+            const {age, gender, genderProbability} = result;
+            new faceapi.draw.DrawTextField ([
+                `${Math.round(age,0)} Tahun`,
+                `${gender} ${Math.round(genderProbability)}`
+            ],
+            result.detection.box.bottomRight
+            ).draw(canvas);
+          });
+        }
+      }
+
+      Promise.all([
+        faceapi.nets.ageGenderNet.loadFromUri('models'),
+        faceapi.nets.ssdMobilenetv1.loadFromUri('models'),
+        faceapi.nets.tinyFaceDetector.loadFromUri('models'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('models'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('models'),
+        faceapi.nets.faceExpressionNet.loadFromUri('models')
+      ]).then(setInterval(main, 1000));
+    })
+  }
+
+  useEffect(() => {
+    async function t(){
+      const x = await import('@zoomus/websdk')
+      setZoomMtg(x.ZoomMtg)
+    }
+    t()
+  }, [])
+
+  useEffect(() => {
+    let inter = setInterval(() => {
+      const el = document.querySelector("#speak-view-video")
+      if(el){
+        console.log("create element")
+        detect(el)
+        clearInterval(inter)
+      }
+    }, 5000);
+  }, [])
+
+  function handleChange(e){
+    const name = e.target.name;
+    const value = e.target.value;
+    setinput({ ...input, ...{ [name]: value }})
+  }
+  
+
   return (
-    <div className={styles.container}>
+    <>
       <Head>
         <title>Create Next App</title>
         <meta name="description" content="Generated by create next app" />
         <link rel="icon" href="/favicon.ico" />
+        <meta httpEquiv="origin-trial" content=""></meta>
       </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
-    </div>
-  )
+      <div className="App">
+        <main style={{ marginLeft: "auto", marginRight: "auto", width: "max-content", marginTop: "100px"}}>
+          <div>
+            <Image sizes={120} src={zoompng} alt='' />
+          </div>
+          <div style={{ padding: "16px"}}>
+            <input onChange={handleChange} name="userName" autoComplete='true' placeholder='name' />
+          </div>
+          <div style={{ padding: "16px"}}>
+            <input onChange={handleChange} name="userEmail" autoComplete='true' placeholder='email' />
+          </div>
+          <div style={{ padding: "16px"}}>
+            <input onChange={handleChange} name="meetingNumber" autoComplete='true' placeholder='meeting ID' />
+            <p style={{ fontSize: "12px"}}>Tidak boleh ada spasi</p>
+          </div>
+          <div style={{ padding: "16px"}}>
+            <input onChange={handleChange} name="passWord" autoComplete='true' placeholder='password' />
+          </div>
+          <div style={{ padding: "16px"}}>
+            <button style={{ background: "blue", color: "white", width: "100%", padding: "5px", borderRadius: "10px"}} onClick={getSignature}>Join Meeting</button>
+          </div>
+        </main>
+        <video id="videoStream" playsInline autoPlay muted></video>
+      </div>
+    </>
+  );
 }
+
+export default App;
