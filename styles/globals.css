@@ -35,6 +35,13 @@ a {
   height: 100vh;
 }
 
+.error_message{
+  color: red;
+  font-size: small;
+  margin: 0 10px;
+  display: none;
+}
+
 /**
 card
 */

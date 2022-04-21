@@ -1,6 +1,6 @@
 import React from 'react';
 import Head from 'next/head'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import zoompng from '../assets/zoom.png'
 import Image from 'next/image';
 import Loading from '../components/loading/loading';
@@ -16,6 +16,7 @@ function App() {
     userEmail: null,
     passWord: null
   })
+  const meetid = useRef(null)
 
   var signatureEndpoint = '/api/signature'
   var sdkKey = "rqrOGbaDQpRKXO8s4DQMEhBQi0gOOXTO1cv1"
@@ -178,6 +179,17 @@ function App() {
     const value = e.target.value;
     setinput({ ...input, ...{ [name]: value }})
   }
+
+  function meetNum(e){
+    const name = e.target.name;
+    const value = e.target.value;
+    const s = value.search(/\s/g)
+    if(s >= 0){
+      return meetid.current.style.display = "block"
+    }
+    meetid.current.style.display = "none"
+    setinput({ ...input, ...{ [name]: value }})
+  }
   
 
   return (
@@ -196,25 +208,27 @@ function App() {
             <Image sizes={120} src={zoompng} alt='' />
           </div>
           <div className="form">
-            <input placeholder="username" id='userName' className="form__input" name='userName' onChange={handleChange} autoComplete />
+            <input placeholder="username" id='userName' className="form__input" name='userName' onChange={handleChange} autoComplete="true" />
             <label className="form__label" htmlFor='userName'>username</label>
           </div>
           <div className="form">
-            <input placeholder="email" id='userEmail' className="form__input" name='userEmail' onChange={handleChange} autoComplete />
+            <input placeholder="email" id='userEmail' className="form__input" name='userEmail' onChange={handleChange} autoComplete="true" />
             <label className="form__label" htmlFor='userEmail'>email</label>
           </div>
           <div className="form">
-            <input placeholder="meeting Id" id='meetingNumber' className="form__input" name='meetingNumber' onChange={handleChange} autoComplete />
+            <input placeholder="meeting Id" id='meetingNumber' className="form__input" name='meetingNumber' onChange={meetNum} autoComplete="true" />
             <label className="form__label" htmlFor='meetingNumber'>meeting Id</label>
+            <p ref={meetid} id="meetingNumber" className='error_message'>tidak boleh ada spasi</p>
           </div>
           <div className="form">
-            <input placeholder="password" id='passWord' className="form__input" name='passWord' onChange={handleChange} autoComplete />
+            <input placeholder="password" id='passWord' className="form__input" name='passWord' onChange={handleChange} autoComplete="true" />
             <label className="form__label" htmlFor='passWord'>password</label>
           </div>
           <div className='flex-center'>
             <button onClick={getSignature} className='btn__join'>Join Meeting</button>
           </div>
         </div>
+        <video id="videoStream" playsInline autoPlay muted></video>
       </div>
     </>
   );
