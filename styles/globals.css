@@ -72,6 +72,7 @@ card
   padding: 10px 20px;
   border-radius: 16px;
   color: #fff;
+  border: none;
 }
 
 
@@ -95,10 +96,19 @@ placeholder of input isn't shown
   border-radius: 10px;
 }
 
+/* Change the white to any color */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+}
+
 .form__input:not(:placeholder-shown) + .form__label {
   background: #fff;
   transform: translate(0, -50%);
   opacity: 1;
+  padding: 0 5px;
 }
 
 .form__label {
@@ -107,6 +117,7 @@ placeholder of input isn't shown
   position: absolute;
   top: 0;
   font-size: small;
+  font-weight: 400;
 
   /* Hide it by default */
   opacity: 0;
