@@ -1,14 +1,15 @@
 import React from 'react';
-import ReactDom from 'react-dom/client';
 import Head from 'next/head'
 import { useState, useEffect } from 'react';
 import zoompng from '../assets/zoom.png'
 import Image from 'next/image';
+import Loading from '../components/loading/loading';
 
 
 function App() {
 
   const [ZoomMtg, setZoomMtg] = useState(null)
+  const [loading, setloading] = useState(true)
   const [input, setinput] = useState({
     meetingNumber: null,
     userName: null,
@@ -88,18 +89,18 @@ function App() {
     let displaySize;
     let videoStream;
 
+    // menampilkan video meet ke dalam tag video
     if(video){
       videoStream = document.querySelector("#videoStream")
       const stream = video.captureStream();
       videoStream.srcObject = stream;
     }
     
+    // membuat canvas baru di depan video meet untuk menampilkan kotak hasil deteksi.
     if(video){
       width = video.offsetWidth
       height = video.offsetHeight
       displaySize = { width, height }
-
-      // const stream = video.captureStream(25);
 
       const canvas = document.createElement("canvas")
       video.after(canvas)
@@ -110,6 +111,8 @@ function App() {
       canvas.setAttribute("height", `${height}`)
       var ctxDetect = canvas.getContext('2d');
     }
+
+    // import face api dan melakukan proses deteksi wajah
     import('face-api.js').then(faceapi => {
 
       async function main() {
@@ -146,14 +149,19 @@ function App() {
     })
   }
 
+
+  // menginport zoom sdk dan memasukannya ke dalam state ZoomMtg
   useEffect(() => {
     async function t(){
       const x = await import('@zoomus/websdk')
       setZoomMtg(x.ZoomMtg)
+      setloading(false)
     }
     t()
   }, [])
 
+
+  // mengambil id canvas jika video sudah muncul
   useEffect(() => {
     let inter = setInterval(() => {
       const el = document.querySelector("#speak-view-video")
@@ -180,29 +188,33 @@ function App() {
         <link rel="icon" href="/favicon.ico" />
         <meta httpEquiv="origin-trial" content=""></meta>
       </Head>
-      <div className="App">
-        <main style={{ marginLeft: "auto", marginRight: "auto", width: "max-content", marginTop: "100px"}}>
-          <div>
+
+      <Loading status={loading} />
+      <div className='container'>
+        <div className='card'>
+          <div className='logo'>
             <Image sizes={120} src={zoompng} alt='' />
           </div>
-          <div style={{ padding: "16px"}}>
-            <input onChange={handleChange} name="userName" autoComplete='true' placeholder='name' />
+          <div className="form">
+            <input placeholder="username" id='userName' className="form__input" name='userName' onChange={handleChange} autoComplete />
+            <label className="form__label" htmlFor='userName'>username</label>
           </div>
-          <div style={{ padding: "16px"}}>
-            <input onChange={handleChange} name="userEmail" autoComplete='true' placeholder='email' />
+          <div className="form">
+            <input placeholder="email" id='userEmail' className="form__input" name='userEmail' onChange={handleChange} autoComplete />
+            <label className="form__label" htmlFor='userEmail'>email</label>
           </div>
-          <div style={{ padding: "16px"}}>
-            <input onChange={handleChange} name="meetingNumber" autoComplete='true' placeholder='meeting ID' />
-            <p style={{ fontSize: "12px"}}>Tidak boleh ada spasi</p>
+          <div className="form">
+            <input placeholder="meeting Id" id='meetingNumber' className="form__input" name='meetingNumber' onChange={handleChange} autoComplete />
+            <label className="form__label" htmlFor='meetingNumber'>meeting Id</label>
           </div>
-          <div style={{ padding: "16px"}}>
-            <input onChange={handleChange} name="passWord" autoComplete='true' placeholder='password' />
+          <div className="form">
+            <input placeholder="password" id='passWord' className="form__input" name='passWord' onChange={handleChange} autoComplete />
+            <label className="form__label" htmlFor='passWord'>password</label>
           </div>
-          <div style={{ padding: "16px"}}>
-            <button style={{ background: "blue", color: "white", width: "100%", padding: "5px", borderRadius: "10px"}} onClick={getSignature}>Join Meeting</button>
+          <div className='flex-center'>
+            <button onClick={getSignature} className='btn__join'>Join Meeting</button>
           </div>
-        </main>
-        <video id="videoStream" playsInline autoPlay muted></video>
+        </div>
       </div>
     </>
   );

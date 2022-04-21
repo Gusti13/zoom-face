@@ -15,9 +15,94 @@ a {
   box-sizing: border-box;
 }
 
+.none {
+  display: none;
+}
+
+.block {
+  display: block;
+}
+
 #zmmtg-root {
   display: none;
 }
 
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
 
+/**
+card
+*/
+
+.card {
+  padding: 2rem;
+  width: auto;
+  margin: auto;
+  border-radius: 50px;
+  background: #ffff;
+  box-shadow:  20px 20px 60px #bebebe,
+              -20px -20px 60px #ffffff;
+}
+
+.logo{
+  margin: 16px 0;
+}
+
+.flex-center{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn__join{
+  margin-top: 16px;
+  background: #008dff;
+  padding: 10px 20px;
+  border-radius: 16px;
+  color: #fff;
+}
+
+
+/**
+  global style input form
+*/
+
+.form {
+  position: relative;
+  margin: 16px 0;
+}
+
+/*
+Show the label at desired position when the 
+placeholder of input isn't shown
+*/
+.form__input{
+  padding: 8px;
+  width: 24rem;
+  border: 1px solid gray;
+  border-radius: 10px;
+}
+
+.form__input:not(:placeholder-shown) + .form__label {
+  background: #fff;
+  transform: translate(0, -50%);
+  opacity: 1;
+}
+
+.form__label {
+  /* Position the label */
+  left: 8px;
+  position: absolute;
+  top: 0;
+  font-size: small;
+
+  /* Hide it by default */
+  opacity: 0;
+  transition: all 200ms;
+}
 
