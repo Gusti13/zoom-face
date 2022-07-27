@@ -16,14 +16,15 @@ function App() {
     meetingNumber: null,
     userName: null,
     userEmail: null,
-    passWord: null
+    passWord: null,
+    role: 1
   })
   const meetid = useRef(null)
 
   var signatureEndpoint = '/api/signature'
   var sdkKey = process.env.SDK_KEY
   var meetingNumber = input.meetingNumber
-  var role = 0
+  var role = input.role
   var leaveUrl = "http://localhost:3000"
   var userName = input.userName
   var userEmail = input.userEmail
@@ -73,6 +74,8 @@ function App() {
     meetid.current.style.display = "none"
     setinput({ ...input, ...{ [name]: value }})
   }
+
+  console.log(input)
   
 
   return (
@@ -89,6 +92,12 @@ function App() {
         <div className='card'>
           <div className='logo'>
             <Image sizes={120} src={zoompng} alt='' />
+          </div>
+          <div className="form">
+            <select className="form__input" name='role' onChange={handleChange}>
+              <option value={1}>Admin</option>
+              <option value={0}>User</option>
+            </select>
           </div>
           <div className="form">
             <input placeholder="username" id='userName' className="form__input" name='userName' onChange={handleChange} autoComplete="true" />

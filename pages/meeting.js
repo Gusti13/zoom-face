@@ -94,7 +94,7 @@ function Meeting({ sdkKey }) {
                 const detections = await faceapi.detectAllFaces(videoStream)
                                                 .withFaceExpressions()
                                                 .withAgeAndGender();
-                // console.log(detections)
+                console.log(detections)
       
                 ctxDetect.clearRect(0,0, width, height);
                 const resizedDetections = faceapi.resizeResults(detections, displaySize)
@@ -124,12 +124,16 @@ function Meeting({ sdkKey }) {
         faceapi.nets.faceRecognitionNet.loadFromUri('models'),
         faceapi.nets.faceExpressionNet.loadFromUri('models')
       ]).then(setInterval(main, 1000));
-    })
+    }).catch(err=>detect())
   }
 
   async function main(){
-    const x = await import('@zoomus/websdk')
-    startMeeting(x.ZoomMtg)
+    try {
+      const x = await import('@zoomus/websdk')
+      startMeeting(x.ZoomMtg)
+    } catch (error) {
+      main()
+    }
   }
 
 
