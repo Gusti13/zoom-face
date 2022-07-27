@@ -116,7 +116,9 @@ function Meeting({ sdkKey }) {
                 // console.log(detections)
                 if(detections){
                   let loading = document.getElementById("loading")
-                  loading.remove()
+                  if(loading){
+                    loading.remove()
+                  }
                 }
       
                 ctxDetect.clearRect(0,0, width, height);
