@@ -47,7 +47,7 @@ card
 */
 
 .card {
-  padding: 2rem;
+  padding: 3rem 6rem;
   width: auto;
   margin: auto;
   border-radius: 50px;
@@ -124,3 +124,11 @@ input:-webkit-autofill:active{
   transition: all 200ms;
 }
 
+
+
+.loading-faceapi {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #008dff;
+}

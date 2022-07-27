@@ -25,7 +25,7 @@ function App() {
   var sdkKey = process.env.SDK_KEY
   var meetingNumber = input.meetingNumber
   var role = input.role
-  var leaveUrl = "http://localhost:3000"
+  var leaveUrl = "https://zoom-face.vercel.app"
   var userName = input.userName
   var userEmail = input.userEmail
   var passWord = input.passWord

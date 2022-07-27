@@ -16,44 +16,48 @@ function Meeting({ sdkKey }) {
     email,
   } = route.query;
   const [loading, setloading] = useState(true)
-  const leaveUrl = "http://localhost:3000"
+  const leaveUrl = "https://zoom-face.vercel.app"
 
   function startMeeting(ZoomMtg) {
-    document.getElementById('zmmtg-root').style.display = 'block'
+    try {
+      document.getElementById('zmmtg-root').style.display = 'block'
 
-    ZoomMtg.setZoomJSLib('https://source.zoom.us/2.3.5/lib', '/av');
-    ZoomMtg.preLoadWasm();
-    ZoomMtg.prepareWebSDK();
-    ZoomMtg.i18n.load('en-US');
-    ZoomMtg.i18n.reload('en-US');
+      ZoomMtg.setZoomJSLib('https://source.zoom.us/2.3.5/lib', '/av');
+      ZoomMtg.preLoadWasm();
+      ZoomMtg.prepareWebSDK();
+      ZoomMtg.i18n.load('en-US');
+      ZoomMtg.i18n.reload('en-US');
 
-    ZoomMtg.init({
-      leaveUrl: leaveUrl,
-      success: (success) => {
-        console.log(success)
-        setloading(false)
+      ZoomMtg.init({
+        leaveUrl: leaveUrl,
+        success: (success) => {
+          console.log(success)
+          setloading(false)
 
-        ZoomMtg.join({
-          signature: signature,
-          meetingNumber: meeting_number,
-          userName: username,
-          sdkKey: sdkKey,
-          userEmail: email,
-          passWord: password,
-          success: (success) => {
-            console.log(success)
-          },
-          error: (error) => {
-            console.log(error)
-          }
-        })
+          ZoomMtg.join({
+            signature: signature,
+            meetingNumber: meeting_number,
+            userName: username,
+            sdkKey: sdkKey,
+            userEmail: email,
+            passWord: password,
+            success: (success) => {
+              console.log(success)
+            },
+            error: (error) => {
+              console.log(error)
+            }
+          })
 
-      },
-      error: (error) => {
-        console.log(error)
-        setloading(false)
-      }
-    })
+        },
+        error: (error) => {
+          console.log(error)
+          setloading(false)
+        }
+      })
+    } catch (error) {
+      main()
+    }
   }
 
   function detect(video) {
@@ -61,6 +65,21 @@ function Meeting({ sdkKey }) {
     let height;
     let displaySize;
     let videoStream;
+
+    // create loading
+    if(video){
+      const el = document.createElement("div")
+      const text = document.createTextNode("Loading FaceApi...")
+      el.appendChild(text)
+      video.after(el)
+      el.style.position = "absolute"
+      el.style.top = "10px"
+      el.style.right = "10px"
+      el.style.padding = "10px"
+      el.style.background = "blue"
+      el.style.color = "white"
+      el.setAttribute("id", "loading")
+    }
 
     // menampilkan video meet ke dalam tag video
     if(video){
@@ -94,7 +113,11 @@ function Meeting({ sdkKey }) {
                 const detections = await faceapi.detectAllFaces(videoStream)
                                                 .withFaceExpressions()
                                                 .withAgeAndGender();
-                console.log(detections)
+                // console.log(detections)
+                if(detections){
+                  let loading = document.getElementById("loading")
+                  loading.remove()
+                }
       
                 ctxDetect.clearRect(0,0, width, height);
                 const resizedDetections = faceapi.resizeResults(detections, displaySize)
@@ -167,6 +190,9 @@ function Meeting({ sdkKey }) {
       <Loading status={loading} />
       <div>
         <video id="videoStream" playsInline autoPlay muted></video>
+        <div className='loading-faceapi'>
+          <h5>Loading FaceApi...</h5>
+        </div>
       </div>
     </>
   );
